@@ -1,0 +1,241 @@
+{
+	"info": {
+		"_postman_id": "9a1f3ab6-6069-4100-8ba0-d5052e78b121",
+		"name": "InfluxdDB",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2939913"
+	},
+	"item": [
+		{
+			"name": "write measurement",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "testMeasurement,tagX=tagVal1,tagY=tagVal1,tagZ=tagVal1 valueKeyX=\"valueKey1\",valueKeyY=\"valueKey1\",valueKeyZ=\"valueKey1\" {{now}}",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8086/api/v2/write?bucket=my-bucket&org=my-org",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8086",
+					"path": [
+						"api",
+						"v2",
+						"write"
+					],
+					"query": [
+						{
+							"key": "bucket",
+							"value": "my-bucket"
+						},
+						{
+							"key": "org",
+							"value": "my-org"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete measurement",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"predicate\": \"_measurement=\\\"testMeasurement\\\"\",\r\n  \"start\": \"1900-01-01T00:00:00Z\",\r\n  \"stop\": \"2030-01-01T00:00:00Z\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8086/api/v2/delete?bucket=my-bucket&org=my-org",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8086",
+					"path": [
+						"api",
+						"v2",
+						"delete"
+					],
+					"query": [
+						{
+							"key": "bucket",
+							"value": "my-bucket"
+						},
+						{
+							"key": "org",
+							"value": "my-org"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "read measuerement",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/vnd.flux",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/csv",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "from(bucket: \"my-bucket\")\r\n    |> range(start: -100y)\r\n    |> filter(fn: (r) => r._measurement == \"testMeasurement\")"
+				},
+				"url": {
+					"raw": "http://localhost:8086/api/v2/query?org=my-org",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8086",
+					"path": [
+						"api",
+						"v2",
+						"query"
+					],
+					"query": [
+						{
+							"key": "org",
+							"value": "my-org"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SHOW SERIES CARDINALITY",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/vnd.flux",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/csv",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8086/query?pretty=true&db=my-bucket&q=SHOW SERIES EXACT CARDINALITY",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8086",
+					"path": [
+						"query"
+					],
+					"query": [
+						{
+							"key": "pretty",
+							"value": "true"
+						},
+						{
+							"key": "db",
+							"value": "my-bucket"
+						},
+						{
+							"key": "q",
+							"value": "SHOW SERIES EXACT CARDINALITY"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "Token {{INFLUXDB_API_TOKEN}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "Authorization",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const moment = require (\"moment\")",
+					"pm.variables.set(\"now\", +moment()*100_000)"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "INFLUXDB_API_TOKEN",
+			"value": "<<TODO: Generate via InfluxDB UI>>",
+			"type": "string"
+		}
+	]
+}
